@@ -9,7 +9,7 @@ const SPEED = 300.0
 
 @export var max_jump_count = 2
 var remaining_jumps: int = 0
-
+var screen_size = get_viewport_rect ().size
 # ===== 冲刺参数 =====
 @export var MAX_DASHES = 1
 @export var DASH_SPEED = 600.0      # 200 太小了，建议 600+
@@ -19,6 +19,8 @@ var is_dashing: bool = false
 var dash_timer: float = 0.0
 var dash_direction: Vector2 = Vector2.ZERO
 
+# 踩楼梯高度
+@export var MAX_STEP_HEIGHT:float = 32.0
 
 func _physics_process(delta: float) -> void:
 	# --- 重力 ---
@@ -44,7 +46,11 @@ func _physics_process(delta: float) -> void:
 	var direction: Vector2 = Vector2.ZERO
 	direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
 	direction.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
-
+	
+	# ---走台阶方向---
+	var facing = sign(direction.x)
+	$RayStepBottom.scale.x = facing
+	$RayStepTop.scale.x = facing
 	# --- 冲刺状态处理 ---
 	if is_dashing:
 		dash_timer -= delta
@@ -72,5 +78,20 @@ func _physics_process(delta: float) -> void:
 				dash_direction = Vector2(-1 if $AnimatedSprite2D.flip_h else 1, 0)
 			else:
 				dash_direction = direction.normalized()
+	
+	if is_on_floor() and not is_dashing:
+		var dir_x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+		if dir_x != 0:
+			
+			
+			# 射线更新，强制刷新碰撞信息
+			$RayStepBottom.force_raycast_update()
+			$RayStepTop.force_raycast_update()
 
+			if $RayStepBottom.is_colliding() and not $RayStepTop.is_colliding():
+				print("检测台阶，抬升！")
+				# 向上移动台阶高度，使用move_and_collide，不要直接改global_position
+				move_and_collide(Vector2(0, -MAX_STEP_HEIGHT))
+	
+	
 	move_and_slide()

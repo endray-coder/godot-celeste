@@ -47,6 +47,8 @@ animations = [{
 script = ExtResource("1_ctgys")
 JUMP_VELOCITY = -400.585
 JUMP_BOOST = -281.974
+MAX_DASHES = 2
+MAX_STEP_HEIGHT = 16.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1157491867]
 shape = SubResource("CapsuleShape2D_ctgys")
@@ -56,3 +58,11 @@ sprite_frames = SubResource("SpriteFrames_7wvu5")
 
 [node name="Timer" type="Timer" parent="." unique_id=609746233]
 wait_time = 0.12
+
+[node name="RayStepTop" type="RayCast2D" parent="." unique_id=724050860]
+position = Vector2(0, 4)
+target_position = Vector2(16, 0)
+
+[node name="RayStepBottom" type="RayCast2D" parent="." unique_id=1413584013]
+position = Vector2(0, 9)
+target_position = Vector2(16, 0)
